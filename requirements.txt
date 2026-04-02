@@ -68,6 +68,7 @@ packaging==26.0
 pandas==3.0.1
 pandocfilters==1.5.1
 parso==0.8.6
+patsy==1.0.2
 pexpect==4.9.0
 pillow==12.1.1
 platformdirs==4.9.4
@@ -95,6 +96,7 @@ Send2Trash==2.1.0
 six==1.17.0
 soupsieve==2.8.3
 stack-data==0.6.3
+statsmodels==0.14.6
 terminado==0.18.1
 threadpoolctl==3.6.0
 tinycss2==1.4.0
