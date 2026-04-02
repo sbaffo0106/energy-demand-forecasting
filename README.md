@@ -1,8 +1,17 @@
-# Electricity Demand Forecasting with Machine Learning
+# Day-Ahead Electricity Demand Forecasting with Machine Learning and Weather Features
 
-This project builds a machine learning pipeline to forecast **hourly electricity demand** using historical load data.
+This project initially built a machine learning pipeline to forecast **hourly electricity demand** using historical load data. The goal was to explore how different regression models perform on a time-series forecasting problem and to identify the most informative features driving electricity demand.
 
-The goal is to explore how different regression models perform on a time-series forecasting problem and to identify the most informative features driving electricity demand.
+## Project upgrade
+
+This project extends a previous short-term forecasting prototype by addressing key real-world limitations:
+
+- shifting from +1h prediction to **day-ahead (+24h) forecasting**
+- incorporating **weather features (temperature)** as exogenous variables
+- benchmarking machine learning models against **statistical baselines**
+- improving evaluation under realistic forecasting constraints
+
+The goal is to move from a simulation setup to a more **industry-relevant forecasting pipeline**.
 
 ---
 
@@ -16,6 +25,8 @@ Electricity demand forecasting is a critical task for:
 - energy market optimization
 
 This project implements a full machine learning workflow for predicting hourly electricity load using historical observations and engineered temporal features.
+
+The updated version focuses on **day-ahead forecasting (+24h horizon)**, which aligns with real-world energy market requirements.
 
 ---
 
@@ -44,13 +55,18 @@ Model training
 ↓  
 Evaluation  
 
-The full implementation of this pipeline can be explored in the accompanying notebook `energy_demand_forecasting.ipynb`.
+The improved pipeline can be explored in the accompanying notebooks:
+
+- `notebooks/02_day_ahead_forecasting.ipynb` (updated version)
+- `notebooks/01_baseline_exploration.ipynb` (initial prototype)
 
 ---
 
 ## Dataset
 
 The dataset contains **hourly electricity demand measurements**.
+
+In the updated version of the project, weather data (temperature) is incorporated to better capture external drivers of electricity demand.
 
 Main variable:
 
@@ -89,14 +105,26 @@ Past demand variability:
 - rolling_mean_24
 - rolling_std_24
 
+### Weather features
+- temperature
+- lagged temperature
+- rolling temperature statistics
+
 All rolling features are computed **only from past observations** to avoid target leakage.
 
 ---
 
 ## Models compared
 
-Three regression models were evaluated:
+The following models were evaluated:
 
+### Baselines
+- Naive forecast (previous day same hour)
+
+### Statistical model
+- **Exponential Smoothing** (Holt-Winters)
+
+### Machine learning models
 - **Ridge Regression**
 - **Random Forest Regressor**
 - **Gradient Boosting Regressor**
@@ -119,13 +147,16 @@ These metrics provide complementary views on prediction accuracy.
 
 ## Results
 
-Among the tested models, **Random Forest achieved the best predictive performance**, significantly outperforming the linear baseline.
+Among the tested models, Random Forest achieved the best performance for short-term prediction, while statistical baselines provided competitive results and better interpretability for trend and seasonality.
 
 Key observations:
 
 - Electricity demand shows strong **short-term persistence**
 - **Lag features** are the most informative predictors
 - Ensemble models capture nonlinear patterns better than linear regression
+- Weather variables (temperature) improve predictive performance, especially during seasonal variations
+- Machine learning models perform well in short-term prediction due to strong autocorrelation
+- Statistical models provide better interpretability of trend and seasonality
 
 ---
 
@@ -134,6 +165,18 @@ Key observations:
 To ensure model robustness, the models were also evaluated using **TimeSeriesSplit cross-validation**.
 
 This approach preserves chronological ordering and prevents information leakage between training and validation sets.
+
+---
+
+## Real-world considerations
+
+This project highlights several important aspects of electricity demand forecasting:
+
+- Tree-based models (e.g. Random Forest) perform well but struggle with **extrapolation beyond training data**
+- Forecast accuracy tends to decrease under **extreme conditions** (e.g. temperature spikes)
+- Model performance depends strongly on the **forecasting horizon**
+
+These challenges are critical in real-world applications such as energy trading and grid management.
 
 ---
 
@@ -150,7 +193,9 @@ energy-demand-forecasting/
 ├── train.py
 ├── evaluate.py
 │
-├── energy_demand_forecasting.ipynb
+├── notebooks/
+│   └── 01_baseline_exploration.ipynb
+│   └── 02_day_ahead_forecasting.ipynb
 │
 ├── README.md
 └── requirements.txt
@@ -183,9 +228,10 @@ cd energy-demand-forecasting
 pip install -r requirements.txt
 ```
 
-3. **Open the notebook and run the cells sequentially**
+3. **Open one of the notebooks and run the cells sequentially:**
 
-Open the file `energy_demand_forecasting.ipynb` and execute the cells from top to bottom.
+- `notebooks/02_day_ahead_forecasting.ipynb` (recommended)
+- `notebooks/01_baseline_exploration.ipynb`
 
 ---
 
