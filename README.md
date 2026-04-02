@@ -11,7 +11,7 @@ This project extends a previous short-term forecasting prototype by addressing k
 - benchmarking machine learning models against **statistical baselines**
 - improving evaluation under realistic forecasting constraints
 
-The goal is to move from a simulation setup to a more **industry-relevant forecasting pipeline**.
+The goal is to move from a simulation setup to a more **realistic and industry-relevant forecasting pipeline**.
 
 ---
 
@@ -66,7 +66,7 @@ The improved pipeline can be explored in the accompanying notebooks:
 
 The dataset contains **hourly electricity demand measurements**.
 
-In the updated version of the project, weather data (temperature) is incorporated to better capture external drivers of electricity demand.
+In the updated version of the project, weather data (temperature) is incorporated to better capture external drivers of electricity demand. Temperature data is retrieved from Open-Meteo API (hourly 2m air temperature, °C).
 
 Main variable:
 
@@ -108,9 +108,9 @@ Past demand variability:
 ### Weather features
 - temperature
 - lagged temperature
-- rolling temperature statistics
+- rolling temperature statistics (mean, variability)
 
-All rolling features are computed **only from past observations** to avoid target leakage.
+All features are constructed **exclusively from past observations** to ensure strict temporal causality and prevent any form of data leakage.
 
 ---
 

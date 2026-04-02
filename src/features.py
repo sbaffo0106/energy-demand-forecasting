@@ -26,14 +26,28 @@ def create_features(df, target_col="PJME_MW"):
     df["dow_sin"] = np.sin(2 * np.pi * df["dayofweek"] / 7)
     df["dow_cos"] = np.cos(2 * np.pi * df["dayofweek"] / 7)
 
-    # lag features
+    # lag features (energy)
     df["lag_1"] = df[target_col].shift(1)
     df["lag_24"] = df[target_col].shift(24)
     df["lag_168"] = df[target_col].shift(168)
 
-    # rolling features
+    # rolling features (energy)
     shifted = df[target_col].shift(1)
     df["rolling_mean_24"] = shifted.rolling(window=24).mean()
     df["rolling_std_24"] = shifted.rolling(window=24).std()
+
+    # weather features
+    if "temperature" in df.columns:
+
+        # lag temperature
+        df["temp_lag_1"] = df["temperature"].shift(1)
+        df["temp_lag_24"] = df["temperature"].shift(24)
+
+        # rolling temperature
+        df["temp_roll_mean_24"] = df["temperature"].rolling(24).mean()
+
+        # heating/cooling degree features
+        df["heating_degree"] = (18 - df["temperature"]).clip(lower=0)
+        df["cooling_degree"] = (df["temperature"] - 18).clip(lower=0)
 
     return df.dropna().copy()
