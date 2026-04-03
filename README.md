@@ -17,16 +17,11 @@ The goal is to move from a simulation setup to a more **realistic and industry-r
 
 ## Project overview
 
-Electricity demand forecasting is a critical task for:
+Electricity demand forecasting is a key problem in energy systems, supporting grid management, market operations, and demand planning.
 
-- energy grid management
-- operational planning
-- demand response strategies
-- energy market optimization
+This project implements a machine learning pipeline for **hourly electricity demand forecasting**, focusing on **day-ahead prediction (+24h horizon)** using historical load data and exogenous weather variables.
 
-This project implements a full machine learning workflow for predicting hourly electricity load using historical observations and engineered temporal features.
-
-The updated version focuses on **day-ahead forecasting (+24h horizon)**, which aligns with real-world energy market requirements.
+The objective is to compare statistical baselines, linear models, and ensemble methods under realistic time-series constraints.
 
 ---
 
@@ -147,16 +142,49 @@ These metrics provide complementary views on prediction accuracy.
 
 ## Results
 
-Among the tested models, Random Forest achieved the best performance for short-term prediction, while statistical baselines provided competitive results and better interpretability for trend and seasonality.
+The evaluation shows a clear performance hierarchy across models.
 
-Key observations:
+- **Naive forecasting** provides a strong baseline due to high temporal autocorrelation in electricity demand.
+- **Exponential Smoothing** captures trend and seasonality effectively but is limited in modeling external drivers and nonlinear patterns.
+- **Machine learning models significantly outperform statistical approaches**, with ensemble methods delivering the best results.
 
-- Electricity demand shows strong **short-term persistence**
-- **Lag features** are the most informative predictors
-- Ensemble models capture nonlinear patterns better than linear regression
-- Weather variables (temperature) improve predictive performance, especially during seasonal variations
-- Machine learning models perform well in short-term prediction due to strong autocorrelation
-- Statistical models provide better interpretability of trend and seasonality
+Among all models, **Random Forest achieved the best predictive performance**, consistently outperforming both Gradient Boosting and Ridge Regression.
+
+Key insights:
+- Lag features are the most informative predictors
+- Electricity demand exhibits strong short-term persistence
+- Nonlinear models are required to capture complex temporal dynamics
+
+---
+
+## Model Performance Visualization
+
+To complement the numerical evaluation metrics, the following visualizations provide a more intuitive understanding of model behavior and feature relevance. These plots help assess not only overall predictive accuracy but also how the model captures temporal dynamics and which signals drive the forecasts.
+
+### Actual vs Predicted Electricity Demand (Random Forest)
+
+![Random Forest Predictions](images/predictions_rf.png)
+
+This figure compares **actual electricity demand and Random Forest predictions** over the first month of the test period.
+
+The model is able to closely follow the main daily patterns and short-term fluctuations in electricity consumption, capturing both **seasonality and local dynamics**.
+
+Some deviations are visible during peak demand periods, where higher volatility makes prediction more challenging.
+
+### Feature Importance (Random Forest)
+
+![Feature Importance](images/feature_importance_rf.png)
+
+This figure shows the **top 10 most important features** according to the Random Forest model.
+
+The results confirm that:
+
+- **lag_1 is the dominant predictor**, highlighting strong short-term autocorrelation in electricity demand  
+- cyclical time features (hour, hour_sin, hour_cos) capture daily seasonality patterns  
+- rolling statistics provide additional information about short-term variability  
+- temperature-related features contribute but have a secondary impact compared to historical demand  
+
+Overall, the model relies primarily on **recent historical values**, which is consistent with the strong temporal dependency structure of electricity demand.
 
 ---
 
@@ -170,13 +198,13 @@ This approach preserves chronological ordering and prevents information leakage 
 
 ## Real-world considerations
 
-This project highlights several important aspects of electricity demand forecasting:
+This project highlights key challenges in real-world electricity forecasting:
 
-- Tree-based models (e.g. Random Forest) perform well but struggle with **extrapolation beyond training data**
-- Forecast accuracy tends to decrease under **extreme conditions** (e.g. temperature spikes)
-- Model performance depends strongly on the **forecasting horizon**
+- Tree-based models perform well in interpolation but are limited in long-term extrapolation
+- Forecast accuracy decreases during extreme conditions (e.g. temperature spikes)
+- Model performance depends strongly on the forecasting horizon
 
-These challenges are critical in real-world applications such as energy trading and grid management.
+These aspects are critical in operational energy systems such as grid balancing and energy trading.
 
 ---
 
@@ -187,6 +215,10 @@ energy-demand-forecasting/
 │
 ├── data/
 │   └── PJME_hourly.csv
+│
+├── images/
+│   ├── predictions_rf.png
+│   └── feature_importance_rf.png
 │
 ├── preprocessing.py
 ├── features.py
