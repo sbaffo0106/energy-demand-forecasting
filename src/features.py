@@ -2,9 +2,12 @@ import numpy as np
 import pandas as pd
 
 
-def create_features(df, target_col="PJME_MW"):
+def create_features(df, target_col="PJME_MW", use_lag1=True):
     """
     Create time-based, cyclical, lag, and rolling features.
+    
+    Parameters:
+    - use_lag1: if False, exclude lag_1 to simulate operational delay
     """
     df = df.copy()
 
@@ -27,7 +30,10 @@ def create_features(df, target_col="PJME_MW"):
     df["dow_cos"] = np.cos(2 * np.pi * df["dayofweek"] / 7)
 
     # lag features (energy)
-    df["lag_1"] = df[target_col].shift(1)
+    if use_lag1:
+        df["lag_1"] = df[target_col].shift(1)
+
+    df["lag_3"] = df[target_col].shift(3)
     df["lag_24"] = df[target_col].shift(24)
     df["lag_168"] = df[target_col].shift(168)
 
@@ -39,14 +45,10 @@ def create_features(df, target_col="PJME_MW"):
     # weather features
     if "temperature" in df.columns:
 
-        # lag temperature
         df["temp_lag_1"] = df["temperature"].shift(1)
         df["temp_lag_24"] = df["temperature"].shift(24)
-
-        # rolling temperature
         df["temp_roll_mean_24"] = df["temperature"].rolling(24).mean()
 
-        # heating/cooling degree features
         df["heating_degree"] = (18 - df["temperature"]).clip(lower=0)
         df["cooling_degree"] = (df["temperature"] - 18).clip(lower=0)
 

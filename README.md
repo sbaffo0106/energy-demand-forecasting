@@ -9,7 +9,7 @@ This project extends a previous short-term forecasting prototype by addressing k
 - shifting from +1h prediction to **day-ahead (+24h) forecasting**
 - incorporating **weather features (temperature)** as exogenous variables
 - benchmarking machine learning models against **statistical baselines**
-- improving evaluation under realistic forecasting constraints
+- introducing **robust evaluation strategies beyond standard train/test splits**
 
 The goal is to move from a simulation setup to a more **realistic and industry-relevant forecasting pipeline**.
 
@@ -33,8 +33,8 @@ The project follows a structured ML workflow:
 2. Validate timestamps and data consistency  
 3. Create calendar, cyclical, lag, and rolling features  
 4. Train multiple regression models  
-5. Evaluate them with a chronological train/test split  
-6. Validate model robustness with time-series cross-validation 
+5. Evaluate models using multiple validation strategies, including time-series cross-validation  
+6. Assess model robustness under rolling forecasting and stress testing conditions 
 
 Pipeline overview:
 
@@ -73,7 +73,7 @@ The dataset is indexed by timestamp and sorted chronologically to preserve the t
 
 ## Feature engineering
 
-Several types of features were created to capture temporal patterns.
+Several types of features are created to capture temporal patterns.
 
 ### Calendar features
 - hour
@@ -90,9 +90,10 @@ To properly represent cyclic variables:
 ### Lag features
 Past demand values used as predictors:
 
-- lag_1
-- lag_24
-- lag_168
+- lag_1 (optional, depending on configuration)  
+- lag_3  
+- lag_24  
+- lag_168  
 
 ### Rolling statistics
 Past demand variability:
@@ -111,7 +112,7 @@ All features are constructed **exclusively from past observations** to ensure st
 
 ## Models compared
 
-The following models were evaluated:
+The following models are evaluated:
 
 ### Baselines
 - Naive forecast (previous day same hour)
@@ -124,19 +125,42 @@ The following models were evaluated:
 - **Random Forest Regressor**
 - **Gradient Boosting Regressor**
 
-Models were trained on historical data and evaluated using a **chronological train/test split**.
+Models are trained on historical data and evaluated using multiple validation strategies.
 
 ---
 
 ## Evaluation metrics
 
-Model performance was evaluated using:
+Model performance is evaluated using:
 
 - **RMSE** – Root Mean Squared Error
 - **MAE** – Mean Absolute Error
 - **R²** – Coefficient of determination
 
 These metrics provide complementary views on prediction accuracy.
+
+---
+
+## Evaluation framework
+
+Model performance is assessed using a multi-level evaluation strategy:
+
+### Train-Test Split
+Initial performance evaluation on a chronological holdout test set.
+
+### Time Series Cross-Validation
+Used to assess model stability across multiple temporal folds.  
+This approach preserves chronological ordering and prevents information leakage between training and validation sets.
+
+### Rolling Forecast Evaluation
+A realistic simulation where models are repeatedly retrained over time and used to predict future values sequentially, mimicking an operational forecasting environment.
+
+### Stress Testing
+Robustness analysis under extreme and challenging conditions:
+
+- peak demand periods  
+- extreme temperature conditions  
+- temporal stability across test sub-periods   
 
 ---
 
@@ -188,21 +212,13 @@ Overall, the model relies primarily on **recent historical values**, which is co
 
 ---
 
-## Time-series validation
-
-To ensure model robustness, the models were also evaluated using **TimeSeriesSplit cross-validation**.
-
-This approach preserves chronological ordering and prevents information leakage between training and validation sets.
-
----
-
 ## Real-world considerations
 
 This project highlights key challenges in real-world electricity forecasting:
 
-- Tree-based models perform well in interpolation but are limited in long-term extrapolation
-- Forecast accuracy decreases during extreme conditions (e.g. temperature spikes)
-- Model performance depends strongly on the forecasting horizon
+- Tree-based models perform well in interpolation but are limited in extrapolation  
+- Forecast accuracy decreases under extreme conditions  
+- Performance varies depending on evaluation methodology (static vs rolling vs stress testing)  
 
 These aspects are critical in operational energy systems such as grid balancing and energy trading.
 
@@ -221,6 +237,7 @@ energy-demand-forecasting/
 │   └── feature_importance_rf.png
 │
 ├── preprocessing.py
+├── weather.py
 ├── features.py
 ├── train.py
 ├── evaluate.py
@@ -272,7 +289,7 @@ pip install -r requirements.txt
 Possible extensions of this project include:
 
 - hyperparameter tuning
-- advanced boosting models (XGBoost / LightGBM)
+- advanced boosting models (XGBoost/LightGBM)
 - probabilistic forecasting
 - multi-step forecasting
 - deployment as a prediction API
